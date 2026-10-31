@@ -1,0 +1,33 @@
+<?php
+
+namespace Livewire;
+
+abstract class Component {}
+
+abstract class ComponentHook
+{
+    /**
+     * @var Component
+     */
+    protected $component;
+}
+
+namespace Livewire\Concerns;
+
+trait InteractsWithProperties
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function all();
+}
+
+namespace Livewire\Features\SupportFormObjects;
+
+class Form
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function all();
+}

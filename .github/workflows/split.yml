@@ -1,0 +1,60 @@
+name: Split
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+concurrency:
+  group: split
+  cancel-in-progress: false
+
+jobs:
+  split:
+    if: github.repository == 'Eolica-Web/php-cloudflare-turnstile'
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - directory: cloudflare-turnstile
+            repository: php-cloudflare-turnstile-core
+          - directory: laravel-cloudflare-turnstile
+            repository: php-cloudflare-turnstile-laravel
+
+    name: Split ${{ matrix.package.directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Split branch
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: danharrin/monorepo-split-github-action@v2.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        with:
+          package_directory: packages/${{ matrix.package.directory }}
+          repository_organization: Eolica-Web
+          repository_name: ${{ matrix.package.repository }}
+          branch: main
+          user_name: 'dllobell'
+          user_email: 'dllobellmoya@gmail.com'
+
+      - name: Split tag
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: danharrin/monorepo-split-github-action@v2.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        with:
+          tag: ${{ github.ref_name }}
+          package_directory: packages/${{ matrix.package.directory }}
+          repository_organization: Eolica-Web
+          repository_name: ${{ matrix.package.repository }}
+          branch: main
+          user_name: 'dllobell'
+          user_email: 'dllobellmoya@gmail.com'

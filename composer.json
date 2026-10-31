@@ -1,0 +1,97 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "eolica/cloudflare-turnstile-monorepo",
+    "description": "Monorepo of the Cloudflare Turnstile packages",
+    "license": "MIT",
+    "type": "project",
+    "authors": [
+        {
+            "name": "David Llobell",
+            "email": "dllobell@eolicadigital.com",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/Eolica-Web/php-cloudflare-turnstile",
+    "require": {
+        "php": "^8.5",
+        "eolica/cloudflare-turnstile": "dev-main",
+        "eolica/laravel-cloudflare-turnstile": "dev-main"
+    },
+    "require-dev": {
+        "carthage-software/mago": "^1.59",
+        "laravel/pao": "^1.0",
+        "livewire/livewire": "^4.0",
+        "nyholm/psr7": "^1.8.2",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^5.0",
+        "pestphp/pest-plugin-browser": "^5.2",
+        "pestphp/pest-plugin-faker": "^5.0",
+        "phpstan/phpstan": "^2.0",
+        "rector/rector": "^2.0",
+        "seophp/head-laravel": "^0.1",
+        "symfony/http-client": "^8.0",
+        "symfony/var-dumper": "^8.0"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/*",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "eolica/cloudflare-turnstile": "dev-main",
+                    "eolica/laravel-cloudflare-turnstile": "dev-main"
+                }
+            }
+        }
+    ],
+    "autoload-dev": {
+        "psr-4": {
+            "Eolica\\CloudflareTurnstile\\Tests\\": "packages/cloudflare-turnstile/tests",
+            "Eolica\\LaravelCloudflareTurnstile\\Tests\\": "packages/laravel-cloudflare-turnstile/tests"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "fmt": [
+            "mago format"
+        ],
+        "fmt:check": [
+            "mago format --check"
+        ],
+        "lint": [
+            "mago lint --fix --format-after-fix"
+        ],
+        "lint:check": [
+            "mago lint"
+        ],
+        "analyse": [
+            "phpstan analyse"
+        ],
+        "refactor": [
+            "rector"
+        ],
+        "test": [
+            "for package in packages/*; do pest --colors=always --configuration=$package/phpunit.xml.dist --test-directory=$package/tests --parallel || exit 1; done"
+        ],
+        "test:integration": [
+            "pest --colors=always --configuration=packages/cloudflare-turnstile/phpunit.xml.dist --test-directory=packages/cloudflare-turnstile/tests --testsuite=integration"
+        ],
+        "test:browser": [
+            "pest --colors=always --configuration=packages/laravel-cloudflare-turnstile/phpunit.xml.dist --test-directory=packages/laravel-cloudflare-turnstile/tests --testsuite=browser"
+        ],
+        "test:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "for package in packages/*; do pest --colors=always --configuration=$package/phpunit.xml.dist --test-directory=$package/tests --parallel --coverage --min=100 || exit 1; done"
+        ],
+        "test:mutate": [
+            "@putenv XDEBUG_MODE=coverage",
+            "for package in packages/*; do pest --colors=always --configuration=$package/phpunit.xml.dist --test-directory=$package/tests --parallel --mutate --covered-only --min=100 || exit 1; done"
+        ]
+    }
+}
