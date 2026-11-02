@@ -116,6 +116,33 @@ it('renders the widget after the page loads', function (): void {
         ->assertNoJavaScriptErrors();
 });
 
+it('removes the widget when it is no longer rendered', function (): void {
+    $page = visit('/contact')->assertScript(waitForToken(), true);
+
+    $page->script(<<<'JS'
+        () => {
+            window.removes = 0;
+            const remove = window.turnstile.remove;
+            window.turnstile.remove = (...args) => {
+                window.removes++;
+
+                return remove(...args);
+            };
+        }
+        JS);
+
+    $page
+        ->press('Hide widget')
+        ->assertMissing('[x-modelable="token"]')
+        ->assertScript('window.removes', 1)
+        ->press('Show widget')
+        ->assertScript(waitForToken(), true)
+        ->fill('email', 'john@example.com')
+        ->press('Send')
+        ->assertSee('Sent: 1')
+        ->assertNoJavaScriptErrors();
+});
+
 it('renders the widget after navigating with wire:navigate', function (): void {
     visit('/home')
         ->click('Contact')
