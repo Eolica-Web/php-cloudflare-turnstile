@@ -6,6 +6,7 @@ Laravel integration of [eolica/cloudflare-turnstile](https://github.com/Eolica-W
 
 - PHP 8.5 or higher
 - Laravel 13
+- Livewire 3 or 4, optional, for the [Livewire integration](#livewire)
 
 ## Installation
 
