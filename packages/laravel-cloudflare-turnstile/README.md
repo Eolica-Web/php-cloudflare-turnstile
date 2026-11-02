@@ -114,16 +114,9 @@ class Contact extends Component
 
 The widget works with `wire:navigate` and in components rendered after the page loads. It also works with form objects. If the page doesn't include Cloudflare's script, the widget logs an error in the browser's console.
 
-A token can only be validated once, so the widget is reset after validating its token, whether the validation passes or fails. The property returns to its initial value and the visitor gets a new token. You don't need to do anything for this.
+A token can only be verified once, so the widget is reset after Cloudflare verifies its token, whether it passes or fails. The property returns to its initial value and the visitor gets a new token. You don't need to do anything for this.
 
-The token is used up even when another field fails. To ask for a new one only when everything else is valid, validate the token on its own, at the end:
-
-```php
-$this->validate(['email' => ['required', 'email']]);
-$this->validate(['captcha' => [new Turnstile()]]);
-```
-
-The visitor then sees the errors of the other fields first, and the error of the widget in a later submission.
+If another field fails before the token, the token isn't verified, so the visitor keeps it and can submit the form again without solving a new challenge.
 
 ### seophp/head
 
@@ -153,6 +146,8 @@ $request->validate([
 ```
 
 The rule fails when the token is missing, so it doesn't need the `required` rule.
+
+Place the rule after the rules of the other fields. When any of them has already failed, the rule doesn't send the token to Cloudflare and doesn't add an error, as the validation fails anyway. This avoids a request and keeps the token unused.
 
 It also sends the visitor's IP address to Cloudflare, taken from `$request->ip()`. If your application runs behind a proxy, such as Cloudflare itself or a load balancer, [configure the trusted proxies](https://laravel.com/docs/requests#configuring-trusted-proxies) so the IP address is the visitor's and not the proxy's. To stop sending it:
 
@@ -199,7 +194,7 @@ Event::listen(function (TokenVerified $event): void {
 });
 ```
 
-`$event->response` is the [`VerifyResponse`](https://github.com/Eolica-Web/php-cloudflare-turnstile-core#the-response) returned by the client and `$event->action` the action passed to the rule. The event is not dispatched when the field is missing or isn't a string, or when Cloudflare can't be reached and the exception is reported instead.
+`$event->response` is the [`VerifyResponse`](https://github.com/Eolica-Web/php-cloudflare-turnstile-core#the-response) returned by the client and `$event->action` the action passed to the rule. The event is not dispatched when the field is missing or isn't a string, when another field has already failed, or when Cloudflare can't be reached and the exception is reported instead.
 
 ## Using the client directly
 

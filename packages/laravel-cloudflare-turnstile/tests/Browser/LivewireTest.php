@@ -65,7 +65,7 @@ it('binds the token to the property', function (): void {
         ->assertScript('Livewire.first().captcha', 'XXXX.DUMMY.TOKEN.XXXX');
 });
 
-it('resets the widget after a validation error', function (): void {
+it('keeps the token after a validation error in another field', function (): void {
     $page = visit('/contact')->assertScript(waitForToken(), true);
 
     $page->script(<<<'JS'
@@ -84,11 +84,12 @@ it('resets the widget after a validation error', function (): void {
         ->fill('email', 'invalid')
         ->press('Send')
         ->assertSee('The email field must be a valid email address.')
-        ->assertScript(waitForToken(), true)
-        ->assertScript('window.resets', 1)
+        ->assertScript('window.resets', 0)
+        ->assertScript('Livewire.first().captcha', 'XXXX.DUMMY.TOKEN.XXXX')
         ->fill('email', 'john@example.com')
         ->press('Send')
         ->assertSee('Sent: 1')
+        ->assertScript('window.resets', 1)
         ->assertDontSee('The verification failed.')
         ->assertNoJavaScriptErrors();
 });
