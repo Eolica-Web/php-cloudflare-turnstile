@@ -219,9 +219,11 @@ use Eolica\CloudflareTurnstile\TurnstileClient;
 use Illuminate\Support\Facades\Http;
 
 Http::fake([
-    TurnstileClient::SITEVERIFY_URL => Http::response(['success' => true]),
+    TurnstileClient::SITEVERIFY_URL => Http::response(['success' => true, 'action' => 'contact']),
 ]);
 ```
+
+The rule compares the response with the expected values, so include the `action` you pass to the rule, and the `hostname` if you set `TURNSTILE_HOSTNAME`. Otherwise the rule fails.
 
 `Http::preventStrayRequests()` also prevents real requests to Cloudflare.
 
