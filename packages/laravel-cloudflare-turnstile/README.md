@@ -225,7 +225,7 @@ Http::fake([
 
 `Http::preventStrayRequests()` also prevents real requests to Cloudflare.
 
-To try the widget locally, use Cloudflare's [testing keys](https://developers.cloudflare.com/turnstile/troubleshooting/testing/), such as the site key `1x00000000000000000000AA` and the secret key `1x0000000000000000000000000000000AA`, which always pass.
+To try the widget locally, use Cloudflare's [testing keys](https://developers.cloudflare.com/turnstile/troubleshooting/testing/), such as the site key `1x00000000000000000000AA` and the secret key `1x0000000000000000000000000000000AA`, which always pass. The hostname and the action are not checked with the test secret keys, so a rule with an `action` passes too.
 
 ## License
 
