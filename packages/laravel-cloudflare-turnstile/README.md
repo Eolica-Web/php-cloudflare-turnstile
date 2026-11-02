@@ -18,6 +18,15 @@ composer require eolica/laravel-cloudflare-turnstile
 
 The service provider is registered automatically.
 
+This package always requires the same version of [eolica/cloudflare-turnstile](https://github.com/Eolica-Web/php-cloudflare-turnstile-core), so update both together with `--with-dependencies`:
+
+```bash
+composer update eolica/laravel-cloudflare-turnstile --with-dependencies
+
+# Or, to a version outside your current constraint:
+composer require eolica/laravel-cloudflare-turnstile:^0.3 --with-dependencies
+```
+
 ## Configuration
 
 Add your site key and secret key to the `.env` file:
