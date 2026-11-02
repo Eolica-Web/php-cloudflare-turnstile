@@ -179,6 +179,27 @@ To customize the error message or translate it, publish the translations:
 php artisan vendor:publish --tag=turnstile-translations
 ```
 
+### Events
+
+The rule dispatches a `TokenVerified` event with Cloudflare's response after each verification, whether it passes or fails. The visitor only sees a generic error, so listen to it to find out why a token was rejected:
+
+```php
+use Eolica\LaravelCloudflareTurnstile\Events\TokenVerified;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+
+Event::listen(function (TokenVerified $event): void {
+    if (! $event->response->success) {
+        Log::debug('Turnstile rejected a token.', [
+            'action' => $event->action,
+            'errors' => $event->response->errorCodes,
+        ]);
+    }
+});
+```
+
+`$event->response` is the [`VerifyResponse`](https://github.com/Eolica-Web/php-cloudflare-turnstile-core#the-response) returned by the client and `$event->action` the action passed to the rule. The event is not dispatched when the field is missing or isn't a string, or when Cloudflare can't be reached and the exception is reported instead.
+
 ## Using the client directly
 
 `Eolica\CloudflareTurnstile\TurnstileClient` is registered in the container, configured with your secret key and expected hostname. Inject it wherever you need it:
