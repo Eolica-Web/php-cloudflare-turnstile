@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Eolica\LaravelCloudflareTurnstile\Head\TurnstilePlugin;
 use Eolica\LaravelCloudflareTurnstile\Tests\Browser\Fixtures\ContactPage;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
+use Seo\Head\Head;
 
 beforeEach(function (): void {
     config()->set('app.key', 'base64:' . base64_encode(random_bytes(32)));
@@ -42,6 +44,38 @@ beforeEach(function (): void {
             </body>
         </html>
         BLADE));
+
+    $headTags = static fn(): string => Head::create()->plugin(TurnstilePlugin::make())->render()['headTags'];
+
+    Route::middleware('web')->get('/head/home', static fn(): string => Blade::render(
+        <<<'BLADE'
+            <html>
+                <head>
+                    {!! $headTags !!}
+                </head>
+                <body>
+                    <a href="/head/contact" wire:navigate>Contact</a>
+                    @livewireScripts
+                </body>
+            </html>
+            BLADE,
+        ['headTags' => $headTags()],
+    ));
+
+    Route::middleware('web')->get('/head/contact', static fn(): string => Blade::render(
+        <<<'BLADE'
+            <html>
+                <head>
+                    {!! $headTags !!}
+                </head>
+                <body>
+                    <a href="/head/home" wire:navigate>Home</a>
+                    <livewire:contact-page />
+                </body>
+            </html>
+            BLADE,
+        ['headTags' => $headTags()],
+    ));
 });
 
 function waitForToken(): string
@@ -149,6 +183,23 @@ it('renders the widget after navigating with wire:navigate', function (): void {
         ->click('Contact')
         ->assertPathIs('/contact')
         ->assertScript(waitForToken(), true)
+        ->fill('email', 'john@example.com')
+        ->press('Send')
+        ->assertSee('Sent: 1')
+        ->assertNoJavaScriptErrors();
+});
+
+it('loads the script added by the head plugin once when navigating with wire:navigate', function (): void {
+    visit('/head/home')
+        ->click('Contact')
+        ->assertPathIs('/head/contact')
+        ->assertScript(waitForToken(), true)
+        ->click('Home')
+        ->assertPathIs('/head/home')
+        ->click('Contact')
+        ->assertPathIs('/head/contact')
+        ->assertScript(waitForToken(), true)
+        ->assertScript('document.querySelectorAll(\'script[src*="challenges.cloudflare.com"]\').length', 1)
         ->fill('email', 'john@example.com')
         ->press('Send')
         ->assertSee('Sent: 1')
