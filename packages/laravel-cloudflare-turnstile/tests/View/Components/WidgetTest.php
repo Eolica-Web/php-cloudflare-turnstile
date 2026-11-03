@@ -19,7 +19,7 @@ function renderBlade(string $template): string
 
 it('renders the standard Cloudflare markup without wire:model', function (): void {
     expect(renderBlade('<x-turnstile::widget />'))
-        ->toBe('<div data-sitekey="1x00000000000000000000AA" class="cf-turnstile"></div>');
+        ->toBe('<div data-sitekey="1x00000000000000000000AA" data-language="en" class="cf-turnstile"></div>');
 });
 
 it('renders the widget options as data attributes', function (): void {
@@ -33,10 +33,19 @@ it('renders the widget options as data attributes', function (): void {
     );
 });
 
+it('uses the application locale as the default language', function (string $locale, string $language): void {
+    app()->setLocale($locale);
+
+    expect(renderBlade('<x-turnstile::widget />'))->toContain(sprintf('data-language="%s"', $language));
+})->with([
+    'language' => ['es', 'es'],
+    'language and region' => ['pt_BR', 'pt-BR'],
+]);
+
 it('passes any other attribute to the widget container', function (): void {
     expect(renderBlade('<x-turnstile::widget class="mt-4" data-callback="onSuccess" />'))
         ->toContain(
-            '<div data-sitekey="1x00000000000000000000AA" class="cf-turnstile mt-4" data-callback="onSuccess"></div>',
+            '<div data-sitekey="1x00000000000000000000AA" data-language="en" class="cf-turnstile mt-4" data-callback="onSuccess"></div>',
         );
 });
 
@@ -50,7 +59,7 @@ it('renders the widget from JavaScript and binds the token with wire:model', fun
         ->toContain('x-modelable="token"')
         ->toContain('wire:model="captcha"')
         ->toContain(
-            "window.turnstile.render(this.\$el, { ...JSON.parse('{\\u0022sitekey\\u0022:\\u00221x00000000000000000000AA\\u0022,\\u0022action\\u0022:\\u0022login\\u0022}'), 'response-field': false,",
+            "window.turnstile.render(this.\$el, { ...JSON.parse('{\\u0022sitekey\\u0022:\\u00221x00000000000000000000AA\\u0022,\\u0022action\\u0022:\\u0022login\\u0022,\\u0022language\\u0022:\\u0022en\\u0022}'), 'response-field': false,",
         );
 });
 

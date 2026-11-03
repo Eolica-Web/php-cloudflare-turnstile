@@ -89,6 +89,8 @@ Configure the widget with any of these attributes:
 
 See [Cloudflare's widget configuration](https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/widget-configurations/) for the values each one accepts. Any other attribute, such as `class` or `data-callback`, is added to the widget's container.
 
+The widget is shown in your application's locale unless you set a `language`, and in English if Cloudflare doesn't [support that language](https://developers.cloudflare.com/turnstile/reference/supported-languages/). Use `language="auto"` to show it in the visitor's browser language instead.
+
 ### Livewire
 
 Bind the widget to a property of your component with `wire:model`:
