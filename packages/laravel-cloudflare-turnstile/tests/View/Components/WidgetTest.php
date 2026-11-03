@@ -97,13 +97,13 @@ it('fails to render without a site key', function (): void {
 it('renders the script', function (): void {
     expect(renderBlade('<x-turnstile::script />'))
         ->toBe(
-            '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer data-navigate-once ></script>',
+            '<link rel="preconnect" href="https://challenges.cloudflare.com"> <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer data-navigate-once ></script>',
         );
 });
 
 it('renders the script with any extra attribute', function (): void {
     expect(renderBlade('<x-turnstile::script nonce="abc" />'))
         ->toBe(
-            '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer data-navigate-once nonce="abc"></script>',
+            '<link rel="preconnect" href="https://challenges.cloudflare.com"> <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer data-navigate-once nonce="abc"></script>',
         );
 });
